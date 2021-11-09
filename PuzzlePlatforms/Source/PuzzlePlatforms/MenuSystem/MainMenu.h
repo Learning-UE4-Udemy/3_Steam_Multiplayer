@@ -6,9 +6,6 @@
 #include "MenuWidget.h"
 #include "MainMenu.generated.h"
 
-/**
- *
- */
 UCLASS()
 class PUZZLEPLATFORMS_API UMainMenu : public UMenuWidget
 {
@@ -19,10 +16,10 @@ public:
 
 	void SetServerList(TArray<FString> ServerNames);
 
+	void SelectIndex(uint32 Index);
 
 protected:
 	virtual bool Initialize();
-
 
 private:
 	TSubclassOf<class UUserWidget> ServerRowClass;
@@ -55,7 +52,6 @@ private:
 		class UPanelWidget* ServerList;
 
 
-
 	UFUNCTION()
 		void HostServer();
 
@@ -70,5 +66,7 @@ private:
 
 	UFUNCTION()
 		void QuitPressed();
+
+	TOptional<uint32> SelectedIndex;
 
 };
