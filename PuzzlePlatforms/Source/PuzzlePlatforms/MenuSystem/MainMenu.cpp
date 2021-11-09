@@ -8,9 +8,9 @@
 #include "Components/Button.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/EditableTextBox.h"
+#include "Components/TextBlock.h"
 
 #include "ServerRow.h"
-
 
 
 UMainMenu::UMainMenu(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {
@@ -51,22 +51,28 @@ void UMainMenu::HostServer() {
 	}
 }
 
-void UMainMenu::JoinServer() {
+void UMainMenu::SetServerList(TArray<FString> ServerNames) {
+	UWorld* World = this->GetWorld();
+	if (!ensure(World != nullptr)) return;
 
-	if (MenuInterface != nullptr) {
-		UE_LOG(LogTemp, Warning, TEXT("MenuInterface - Is Valid"));
+	ServerList->ClearChildren();
 
-		//if (!ensure(IPAdressField != nullptr))return;
-		//const FString& Adress = IPAdressField->GetText().ToString();
-		//MenuInterface->Join(Adress);
-
-		UWorld* World = this->GetWorld();
-		if (!ensure(World != nullptr)) return;
-
+	for (const FString& ServerName : ServerNames) {
 		UServerRow* Row = CreateWidget<UServerRow>(World, ServerRowClass);
 		if (!ensure(Row != nullptr)) return;
 
+		Row->ServerName->SetText(FText::FromString(ServerName));
+
 		ServerList->AddChild(Row);
+	}
+}
+
+void UMainMenu::JoinServer() {
+
+	if (MenuInterface != nullptr) {
+		/*if (!ensure(IPAdressField != nullptr))return;
+		const FString& Adress = IPAdressField->GetText().ToString();*/
+		MenuInterface->Join("");
 	}
 }
 
@@ -74,6 +80,10 @@ void UMainMenu::OpenJoinMenu() {
 	if (!ensure(MenuSwitcher != nullptr)) return;
 	if (!ensure(JoinMenu != nullptr)) return;
 	MenuSwitcher->SetActiveWidget(JoinMenu);
+
+	if (MenuInterface != nullptr) {
+		MenuInterface->RefreshServerList();
+	}
 }
 
 void UMainMenu::OpenMainMenu() {
