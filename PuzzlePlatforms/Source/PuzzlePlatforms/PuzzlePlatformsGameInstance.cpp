@@ -12,6 +12,8 @@
 
 
 const static FName SESSION_NAME = TEXT("My Session Game");
+const static FName SERVER_NAME_SETTINGS_KEY = TEXT("ServerName");
+
 
 UPuzzlePlatformsGameInstance::UPuzzlePlatformsGameInstance(const FObjectInitializer& ObjectInitializer) {
 	ConstructorHelpers::FClassFinder<UUserWidget> MenuBPClass(TEXT("/Game/MenuSystem/WBP_MainMenu"));
@@ -70,7 +72,10 @@ void UPuzzlePlatformsGameInstance::InGameLoadMenu() {
 	_Menu->SetMenuInterface(this);
 }
 
-void UPuzzlePlatformsGameInstance::Host() {
+void UPuzzlePlatformsGameInstance::Host(FString ServerName) {
+
+	DesiredServerName = ServerName;
+
 	if (SessionInterface.IsValid()) {
 		auto ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);
 		if (ExistingSession != nullptr) {
@@ -102,6 +107,8 @@ void UPuzzlePlatformsGameInstance::CreateSession() {
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
 		SessionSettings.bUseLobbiesIfAvailable = true;
+		SessionSettings.Set(SERVER_NAME_SETTINGS_KEY, DesiredServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+
 
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
@@ -149,11 +156,21 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool Success) {
 		TArray<FServerData> ServerNames;
 		for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults) {
 			UE_LOG(LogTemp, Warning, TEXT("Found session name: %s"), *SearchResult.GetSessionIdStr());
+
 			FServerData Data;
-			Data.Name =  SearchResult.GetSessionIdStr();
 			Data.MaxPlayers = SearchResult.Session.SessionSettings.NumPublicConnections;
 			Data.CurrentPlayers = Data.MaxPlayers - SearchResult.Session.NumOpenPublicConnections;
 			Data.HostUserName = SearchResult.Session.OwningUserName;
+
+			FString ServerName;
+			if (SearchResult.Session.SessionSettings.Get(SERVER_NAME_SETTINGS_KEY, ServerName)) {
+				Data.Name = ServerName;
+
+			}
+			else {
+			Data.Name = "Could not find name";
+			}
+
 			ServerNames.Add(Data);
 		}
 		Menu->SetServerList(ServerNames);
