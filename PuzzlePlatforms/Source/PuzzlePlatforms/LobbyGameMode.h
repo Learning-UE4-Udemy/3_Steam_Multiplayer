@@ -6,7 +6,6 @@
 #include "PuzzlePlatformsGameMode.h"
 #include "LobbyGameMode.generated.h"
 
-
 UCLASS()
 class PUZZLEPLATFORMS_API ALobbyGameMode : public APuzzlePlatformsGameMode
 {
@@ -21,5 +20,4 @@ public:
 private:
 
 	uint32 NumberOfPlayers = 0;
-
 };
