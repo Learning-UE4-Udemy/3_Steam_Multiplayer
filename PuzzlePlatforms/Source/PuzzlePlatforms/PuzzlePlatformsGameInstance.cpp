@@ -103,7 +103,7 @@ void UPuzzlePlatformsGameInstance::CreateSession() {
 			SessionSettings.bIsLANMatch = false;
 		}
 
-		SessionSettings.NumPublicConnections = 2;
+		SessionSettings.NumPublicConnections = 5;
 		SessionSettings.bShouldAdvertise = true;
 		SessionSettings.bUsesPresence = true;
 		SessionSettings.bUseLobbiesIfAvailable = true;
@@ -168,7 +168,7 @@ void UPuzzlePlatformsGameInstance::OnFindSessionsComplete(bool Success) {
 
 			}
 			else {
-			Data.Name = "Could not find name";
+				Data.Name = "Could not find name";
 			}
 
 			ServerNames.Add(Data);
@@ -207,6 +207,12 @@ void UPuzzlePlatformsGameInstance::OnJoinSessionComplete(FName SessionName, EOnJ
 	if (!ensure(PlayerController != nullptr))return;
 
 	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+}
+
+void UPuzzlePlatformsGameInstance::StartSession() {
+	if (SessionInterface.IsValid()) {
+		SessionInterface->StartSession(NAME_GameSession);
+	}
 }
 
 void UPuzzlePlatformsGameInstance::LoadMainMenu() {
